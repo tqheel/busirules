@@ -1,0 +1,33 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Business Rules</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script src="validate.js"></script>
+</head>
+<body>
+	<h1>Evaluate some business rules</h1>
+	<div>
+		stem: <textarea id="stem"></textarea><br>
+	</div>
+	<div>
+		option A: <input class="option" type="text" id="optionA"><br>
+		option B: <input class="option" type="text" id="optionB"><br>
+		option C: <input class="option" type="text" id="optionC"><br>
+		option D: <input class="option" type="text" id="optionD">
+	</div>
+	<div>
+		<button onclick="validateStem()">Validate Stem</button>
+		<button onclick="validateOptions()">Validate Options</button>
+	</div>
+	
+	<div id="message">
+		
+	</div>
+</body>
+<script>
+	$(document).ready(function(){
+
+	});
+</script>
+</html>
