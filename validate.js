@@ -1,7 +1,8 @@
 function validateStem(){
 	var stem = $('#stem').val();
 	console.log(stem);
-	console.log(reservedPatterns[0])
+	console.log(reservedPatterns[0].reservedPatternText);
+	
 
 }
 
