@@ -4,21 +4,48 @@ var messages = [];
 function checkBusinessRules(){
   var stem = $('#stem').val();
   var options = $('.option').map(function(){
-    console.log(this.value);
     return this.value;
   }).get();
   validate(stem, true);
   validate(options, false);
   //determine if validation passed (isValid?)
-
   //if !isValid, add messages to UI
-
+  processValidation();
+  
   //reset global variables
+  resetGlobalVars();
+}
+
+function problemFound(message){
+  isValid = false;
+  messages.push(message);
+}
+
+function processValidation(){
+  var list = $('#messages');
+  list.empty();
+  if(!isValid){
+    for(i=0; i < messages.length; i++){
+      var message = messages[i];
+      $(list).append('<li>'+message+'</li>');
+    }
+  }
+}
+
+function resetGlobalVars(){
+  isValid = true;
+  messages = [];
 }
 
 function validate(input, isStem){
   var i = 0;
   var j = 0;
+  var p, w;//used to hold current regex or reserved word, respectively, witiin each for-next loop
+  var container; //holds current object for each for-next loop
+  var testResult; //holds result of current comparison within each for-next loop
+  var mustMatchPattern; // holds current value of container.mustMatchPattern
+  
+
   if(isStem){
     var stemPatterns = reservedPatterns.filter(function(pattern){
       return pattern.applyToStems;
@@ -28,13 +55,35 @@ function validate(input, isStem){
     });
     for(i=0; i < stemPatterns.length; i++){
       //evaluate each pattern against the stem
-      console.log(input + ' against ' + stemPatterns[i].reservedPatternText);
-      //if problem with pattern, add the issue to the message array
+      container = stemPatterns[i];
+      p = container.reservedPatternText;
+      mustMatchPattern = container.mustMatchPattern;
+      testResult = new RegExp(p).test(input);
+      // console.log('pattern to match: ' + p);
+      // console.log('result of test: ' + testResult);
+      // console.log('mustMatchPattern: ' + mustMatchPattern);
+      if(mustMatchPattern){
+        if(!testResult){
+          problemFound('Stem Text Must ' + container.description);
+        }
+      }
+      else{
+        if(testResult){
+          problemFound('Stem Text Must Not ' + container.description);
+        }
+      } 
     }
+    var startRegEx = '\\b';
+    var endRegEx = '\\b';
     for(i=0; i < stemWords.length; i++){
       //evaluate each word against the stem
-      console.log(input + ' against ' + stemWords[i].reservedWordText);
-      //if problem with word, add the issue to the message array
+      container = stemWords[i];
+      w = container.reservedWordText;
+      var wholeRegEx = startRegEx + w + endRegEx;
+      testResult = new RegExp(wholeRegEx).test(input.toLowerCase());
+      if(testResult){
+          problemFound('Stem Text Must Not Contain The Word ' + w);
+      }
     }
   }
   else{
@@ -44,16 +93,41 @@ function validate(input, isStem){
     var optionWords = reservedWords.filter(function(word){
       return word.applyToOptions;
     });
-    for(i=0; i < input.length; i++){
-      for(j=0; j < optionPatterns.length; j++){
+    for(j=0; j < input.length; j++){
+      for(i=0; i < optionPatterns.length; i++){
         //evaluate each pattern against the option
-        console.log(input[i] + ' against ' + optionPatterns[j].reservedPatternText);
-        //if problem with pattern, add the issue to the message array
+        container = optionPatterns[i];
+        p = container.reservedPatternText;
+        mustMatchPattern = container.mustMatchPattern;
+        testResult = new RegExp(p).test(input[j]);
+        console.log('pattern to match: ' + p);
+        console.log('result of test: ' + testResult);
+        console.log('mustMatchPattern: ' + mustMatchPattern);
+        if(mustMatchPattern){
+          if(!testResult){
+            problemFound('Response Text Must ' + container.description);
+          }
+        }
+        else{
+          if(testResult){
+            problemFound('Response Text Must Not ' + container.description);
+          }
+        }
       }
-      for(j=0; j < optionWords.length; j++){
+      for(i=0; i < optionWords.length; i++){
         //evaluate each word against the option
-        console.log(input[i] + ' against ' + optionWords[j].reservedWordText);
-        //if problem with word, add the issue to the message array
+        var startRegEx = '\\b';
+        var endRegEx = '\\b';
+        for(i=0; i < optionWords.length; i++){
+          //evaluate each word against the stem
+          container = optionWords[i];
+          w = container.reservedWordText;
+          var wholeRegEx = startRegEx + w + endRegEx;
+          testResult = new RegExp(wholeRegEx).test(input[j].toLowerCase());
+          if(testResult){
+              problemFound('Response Text Must Not Contain The Word ' + w);
+          }
+        }
       }
     } 
   }
@@ -63,7 +137,6 @@ var reservedPatterns = [
         {
           "reservedPatternId": 1524,
           "reservedPatternText": "\\?\\s*$",
-          "applyToOptions": false,
           "applyToStems": true,
           "description": "End With a Question Mark",
           "isError": false,
