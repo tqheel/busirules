@@ -97,9 +97,6 @@ function validate(input, isStem){
         p = container.reservedPatternText;
         mustMatchPattern = container.mustMatchPattern;
         testResult = new RegExp(p).test(input[j]);
-        console.log('pattern to match: ' + p);
-        console.log('result of test: ' + testResult);
-        console.log('mustMatchPattern: ' + mustMatchPattern);
         if(mustMatchPattern){
           if(!testResult){
             problemFound('Response Text Must ' + container.description);
